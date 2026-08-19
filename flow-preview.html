@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Hyphemotion — Flow Preview</title>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --panel: #141414;
+    --panel2: #1c1c1c;
+    --border: #292929;
+    --text: #f5f5f5;
+    --muted: #9a9a9a;
+    --muted2: #6b6b6b;
+    --accent: #6366f1;
+    --accent-hover: #4f46e5;
+    --green: #10b981;
+    --green-bg: rgba(16,185,129,0.12);
+    --amber: #f59e0b;
+    --amber-bg: rgba(245,158,11,0.12);
+    --red: #f87171;
+    --red-bg: rgba(248,113,113,0.12);
+    --blue: #60a5fa;
+    --blue-bg: rgba(96,165,250,0.12);
+    --purple: #c084fc;
+    --purple-bg: rgba(192,132,252,0.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+    font-size: 14px;
+  }
+  #app { height: 100vh; display: flex; flex-direction: column; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; }
+  input, select, textarea { font-family: inherit; }
+
+  /* ---------- Banner ---------- */
+  .demo-banner {
+    background: linear-gradient(90deg, #312e81, #1e1b4b);
+    color: #c7d2fe;
+    font-size: 12px;
+    padding: 6px 16px;
+    text-align: center;
+    border-bottom: 1px solid #3730a3;
+    flex-shrink: 0;
+  }
+
+  /* ---------- Login ---------- */
+  .login-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .login-card {
+    width: 100%;
+    max-width: 380px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 32px;
+  }
+  .login-card h1 { margin: 0 0 4px; font-size: 20px; }
+  .login-card p.sub { margin: 0 0 24px; color: var(--muted); font-size: 13px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; }
+  .field input, .field select, .field textarea {
+    width: 100%;
+    background: var(--panel2);
+    border: 1px solid #3a3a3a;
+    border-radius: 8px;
+    padding: 9px 11px;
+    color: var(--text);
+    outline: none;
+    font-size: 13px;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+  .btn {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 9px 16px;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .btn:hover { background: var(--accent-hover); }
+  .btn.block { width: 100%; }
+  .btn.ghost { background: transparent; border: 1px solid #3a3a3a; color: var(--muted); }
+  .btn.ghost:hover { color: var(--text); border-color: #555; }
+  .btn.sm { padding: 5px 10px; font-size: 12px; }
+  .role-hint { margin-top: 18px; font-size: 12px; color: var(--muted2); line-height: 1.5; }
+
+  /* ---------- Shell ---------- */
+  .shell { flex: 1; display: flex; overflow: hidden; }
+  .sidebar {
+    width: 230px;
+    flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    background: #101010;
+    padding: 16px 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  .sidebar .brand { padding: 0 8px; margin-bottom: 20px; }
+  .sidebar .brand h1 { font-size: 15px; margin: 0; }
+  .sidebar .brand p { font-size: 11px; color: var(--muted2); margin: 2px 0 0; }
+  .nav { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+  .nav a {
+    display: block;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .nav a:hover { background: #1e1e1e; color: var(--text); }
+  .nav a.active { background: var(--accent); color: white; }
+  .sidebar-footer { border-top: 1px solid var(--border); padding-top: 12px; margin-top: 12px; }
+  .sidebar-footer .who { padding: 0 8px 8px; }
+  .sidebar-footer .who .name { font-size: 13px; }
+  .sidebar-footer .who .role { font-size: 11px; color: var(--muted2); text-transform: capitalize; }
+  .sidebar-footer button {
+    width: 100%; text-align: left; background: none; border: none;
+    color: var(--muted); padding: 9px 12px; border-radius: 8px; font-size: 13px;
+  }
+  .sidebar-footer button:hover { background: #1e1e1e; color: var(--text); }
+
+  .main { flex: 1; overflow-y: auto; display: flex; flex-direction: column; }
+  .page { padding: 32px; }
+  .page-head { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; gap: 16px; flex-wrap: wrap; }
+  .page-head h1 { font-size: 22px; margin: 0 0 4px; }
+  .page-head p { margin: 0; color: var(--muted); font-size: 13px; }
+
+  /* ---------- Cards / grids ---------- */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+  }
+  .card:hover { border-color: #3a3a3a; }
+  .card .row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+  .card h3 { margin: 0; font-size: 14px; font-weight: 500; }
+  .card .muted { color: var(--muted); font-size: 12px; }
+  .badge { padding: 2px 9px; border-radius: 999px; font-size: 11px; text-transform: capitalize; white-space: nowrap; }
+  .b-brief, .b-lead { background: #262626; color: #d4d4d4; }
+  .b-storyboard, .b-contacted { background: var(--blue-bg); color: var(--blue); }
+  .b-animation, .b-negotiating { background: var(--purple-bg); color: var(--purple); }
+  .b-revisions, .b-quoted { background: var(--amber-bg); color: var(--amber); }
+  .b-delivered, .b-won, .b-approved { background: var(--green-bg); color: var(--green); }
+  .b-archived, .b-lost { background: #262626; color: #737373; }
+  .b-changes_requested { background: var(--red-bg); color: var(--red); }
+  .b-pending_review { background: var(--amber-bg); color: var(--amber); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+  .panel .phead { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .panel .phead h2 { font-size: 13px; margin: 0; font-weight: 600; }
+  .link-sm { font-size: 12px; color: var(--accent); }
+  .list-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 11px; border: 1px solid var(--border); border-radius: 10px; margin-bottom: 6px; font-size: 13px;
+  }
+  .list-row:hover { border-color: #3a3a3a; background: #191919; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.65);
+    display: flex; align-items: center; justify-content: center; padding: 16px; z-index: 50;
+  }
+  .modal { width: 100%; max-width: 440px; background: var(--panel); border: 1px solid var(--border); border-radius: 16px; padding: 22px; max-height: 88vh; overflow-y: auto; }
+  .modal h2 { margin: 0 0 16px; font-size: 16px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+  .checklist { max-height: 160px; overflow-y: auto; border: 1px solid #3a3a3a; border-radius: 8px; padding: 6px; background: var(--panel2); }
+  .checklist label { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 6px; font-size: 13px; }
+  .checklist label:hover { background: #262626; }
+
+  /* ---------- Kanban ---------- */
+  .kanban { display: flex; gap: 14px; overflow-x: auto; padding-bottom: 12px; }
+  .kcol { width: 250px; flex-shrink: 0; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 14px; }
+  .kcol-head { display: flex; align-items: center; justify-content: space-between; padding: 12px 14px; border-bottom: 1px solid var(--border); }
+  .kcol-head h3 { margin: 0; font-size: 13px; }
+  .kcol-count { background: #262626; color: var(--muted); font-size: 11px; padding: 1px 8px; border-radius: 999px; }
+  .kcol-body { padding: 10px; min-height: 80px; display: flex; flex-direction: column; gap: 8px; }
+  .kcol-body.dragover { background: rgba(99,102,241,0.08); }
+  .kcard {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; cursor: grab;
+  }
+  .kcard:active { cursor: grabbing; }
+  .kcard .t { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .kcard .c { font-size: 12px; color: var(--muted); }
+  .kcard .v { font-size: 12px; color: var(--green); margin-top: 4px; }
+  .kcard-drop-hint { font-size: 11px; color: var(--muted2); padding: 6px 4px; }
+
+  /* ---------- Project detail ---------- */
+  .proj-head { padding: 18px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+  .proj-head h1 { font-size: 16px; margin: 0; }
+  .proj-head .sub { font-size: 12px; color: var(--muted2); }
+  .tabs { display: flex; gap: 2px; padding: 0 32px; border-bottom: 1px solid var(--border); }
+  .tab-btn { background: none; border: none; color: var(--muted); padding: 11px 16px; font-size: 13px; font-weight: 500; border-bottom: 2px solid transparent; }
+  .tab-btn.active { color: var(--text); border-color: var(--accent); }
+  .tab-body { flex: 1; display: flex; overflow: hidden; }
+
+  /* Chat */
+  .chat { display: flex; flex-direction: column; flex: 1; height: 100%; }
+  .chat-msgs { flex: 1; overflow-y: auto; padding: 18px 32px; display: flex; flex-direction: column; gap: 10px; }
+  .msg { display: flex; }
+  .msg.mine { justify-content: flex-end; }
+  .bubble { max-width: 420px; padding: 8px 12px; border-radius: 14px; font-size: 13px; background: var(--panel2); }
+  .msg.mine .bubble { background: var(--accent); color: white; }
+  .bubble .sender { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .bubble .time { font-size: 10px; opacity: 0.6; margin-top: 3px; }
+  .chat-input { display: flex; gap: 8px; padding: 14px 32px; border-top: 1px solid var(--border); }
+  .chat-input input { flex: 1; }
+
+  /* Revisions */
+  .rev-wrap { display: flex; flex: 1; overflow: hidden; width: 100%; }
+  .rev-list { width: 190px; flex-shrink: 0; border-right: 1px solid var(--border); padding: 14px; overflow-y: auto; }
+  .rev-item { width: 100%; text-align: left; background: none; border: none; border-radius: 8px; padding: 8px 10px; margin-bottom: 4px; color: var(--muted); }
+  .rev-item:hover { background: #1c1c1c; }
+  .rev-item.active { background: #1c1c1c; color: var(--text); }
+  .rev-item .vn { font-size: 13px; font-weight: 500; display: block; margin-bottom: 4px; }
+  .rev-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .rev-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 18px; border-bottom: 1px solid var(--border); }
+  .rev-viewer-wrap { flex: 1; display: flex; overflow: hidden; }
+  .rev-viewer { flex: 1; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; position: relative; }
+  .fake-video { width: 100%; max-width: 560px; aspect-ratio: 16/9; background: linear-gradient(135deg,#1e1e2e,#0f0f1a); border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid #2a2a3a; }
+  .fake-image { width: 100%; max-width: 560px; aspect-ratio: 16/10; background: linear-gradient(135deg,#2a1e1e,#1a0f0f); border-radius: 10px; display: flex; align-items: center; justify-content: center; border: 1px solid #3a2a2a; }
+  .play-icon { width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center; }
+  .timeline-wrap { width: 100%; max-width: 560px; margin-top: 14px; }
+  .timeline-track { position: relative; height: 26px; }
+  .timeline-track input[type=range] { width: 100%; accent-color: var(--accent); }
+  .marker { position: absolute; top: -2px; width: 10px; height: 10px; border-radius: 50%; background: var(--amber); border: 2px solid #000; transform: translateX(-50%); cursor: pointer; }
+  .time-label { font-size: 11px; color: var(--muted); margin-top: 4px; text-align: center; }
+  .rev-comments { width: 300px; flex-shrink: 0; border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+  .comment-list { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .comment { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; }
+  .comment .head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+  .comment .author { font-size: 12px; color: var(--muted); }
+  .comment .stamp { font-size: 10px; background: #262626; color: var(--accent); padding: 1px 6px; border-radius: 999px; }
+  .comment .body { font-size: 13px; }
+  .comment-form { border-top: 1px solid var(--border); padding: 10px; }
+  .comment-form textarea { width: 100%; resize: none; }
+  .checkbox-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); margin: 6px 0; }
+
+  .empty { color: var(--muted2); font-size: 13px; padding: 8px 4px; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =========================================================================
+   Hyphemotion — offline flow preview.
+   This is a click-through mockup of the real app's UI/UX flow, running
+   entirely in this single HTML file with in-memory mock data. No network
+   calls, no backend, nothing is saved between page reloads — it's here so
+   you (and your team) can walk through how projects, chat, the sales
+   pipeline, and revisions are meant to work before we wire up the real
+   Supabase-backed version.
+   ========================================================================= */
+
+const USERS = [
+  { id: "u1", name: "Alex Rivera", email: "alex@studio.com", role: "admin" },
+  { id: "u2", name: "Jamie Chen", email: "jamie@studio.com", role: "sales" },
+  { id: "u3", name: "Sam Patel", email: "sam@studio.com", role: "production" },
+  { id: "u4", name: "Morgan Lee", email: "morgan@studio.com", role: "production" },
+];
+
+const STAGES = [
+  { key: "lead", label: "Lead" },
+  { key: "contacted", label: "Contacted" },
+  { key: "quoted", label: "Quoted" },
+  { key: "negotiating", label: "Negotiating" },
+  { key: "won", label: "Won" },
+  { key: "lost", label: "Lost" },
+];
+
+const STATUSES = ["brief", "storyboard", "animation", "revisions", "delivered", "archived"];
+const VERSION_STATUSES = [
+  { key: "pending_review", label: "Pending review" },
+  { key: "changes_requested", label: "Changes requested" },
+  { key: "approved", label: "Approved" },
+];
+
+let uid = 100;
+const nextId = (p) => `${p}${uid++}`;
+
+let deals = [
+  { id: "d1", title: "60s brand explainer", client: "Acme Inc.", value: 6000, stage: "negotiating" },
+  { id: "d2", title: "Product launch teaser", client: "Nova Labs", value: 4200, stage: "quoted" },
+  { id: "d3", title: "Logo animation pack", client: "Fernwood Co.", value: 1500, stage: "contacted" },
+  { id: "d4", title: "3D product renders", client: "Halcyon", value: 8800, stage: "lead" },
+  { id: "d5", title: "Explainer series (5x)", client: "Bramble Tea", value: 15000, stage: "won" },
+  { id: "d6", title: "App onboarding animation", client: "Driftwood", value: 3000, stage: "lost" },
+];
+
+let projects = [
+  {
+    id: "p1",
+    name: "Acme — 60s brand explainer",
+    client: "Acme Inc.",
+    type: "2D explainer",
+    status: "revisions",
+    deadline: "2026-09-12",
+    members: ["u1", "u3", "u4"],
+    versions: [
+      {
+        id: "v2", number: 2, title: "v2", type: "video", status: "pending_review",
+        comments: [
+          { id: "c1", author: "u1", body: "Logo reveal timing feels early — push it back ~1s.", t: 4 },
+          { id: "c2", author: "u3", body: "Updated the color grade per client notes.", t: null },
+        ],
+      },
+      {
+        id: "v1", number: 1, title: "v1", type: "video", status: "changes_requested",
+        comments: [
+          { id: "c3", author: "u1", body: "Client wants the tagline bigger here.", t: 9 },
+        ],
+      },
+    ],
+    messages: [
+      { id: "m1", sender: "u1", body: "Client approved the storyboard, green light on animation.", time: "9:02 AM" },
+      { id: "m2", sender: "u3", body: "On it — first pass on v2 today.", time: "9:05 AM" },
+    ],
+  },
+  {
+    id: "p2",
+    name: "Bramble Tea — Explainer series (1/5)",
+    client: "Bramble Tea",
+    type: "2D explainer",
+    status: "storyboard",
+    deadline: "2026-10-01",
+    members: ["u1", "u2", "u4"],
+    versions: [],
+    messages: [
+      { id: "m3", sender: "u2", body: "Kickoff call notes are in the shared doc — 5 episodes, same style guide.", time: "Yesterday" },
+    ],
+  },
+];
+
+let salesChatMessages = [
+  { id: "s1", sender: "u2", body: "Nova Labs wants a rush turnaround — can production take it?", time: "10:14 AM" },
+  { id: "s2", sender: "u1", body: "Depends on the deadline — what are they asking for?", time: "10:16 AM" },
+];
+
+const state = { user: null, screen: "login", projectId: null, projectTab: "revisions", activeVersionId: null };
+
+function userById(id) { return USERS.find((u) => u.id === id); }
+function isSalesOrAdmin(u) { return u && (u.role === "admin" || u.role === "sales"); }
+function isProjectMember(p, u) { return u && (u.role === "admin" || p.members.includes(u.id)); }
+function esc(s) { return (s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+function render() {
+  const app = document.getElementById("app");
+  if (state.screen === "login") {
+    app.innerHTML = bannerHtml() + loginScreen();
+    wireLogin();
+    return;
+  }
+  const modals = (newProjectModal.open ? newProjectModalHtml() : "") + (newDealModal.open ? newDealModalHtml() : "");
+  app.innerHTML = bannerHtml() + `<div class="shell">${sidebar()}<div class="main">${mainScreen()}</div></div>` + modals;
+  wireUp();
+}
+
+function wireLogin() {
+  document.getElementById("loginBtn").addEventListener("click", () => {
+    const id = document.getElementById("loginUser").value;
+    state.user = userById(id);
+    state.screen = "dashboard";
+    render();
+  });
+}
+
+function bannerHtml() {
+  return `<div class="demo-banner">Offline flow preview — mock data only, nothing here is saved. Close this file and reopen it to reset.</div>`;
+}
+
+/* ---------------- Login ---------------- */
+function loginScreen() {
+  return `
+  <div class="login-wrap">
+    <div class="login-card">
+      <h1>Hyphemotion</h1>
+      <p class="sub">Sign in to your workspace</p>
+      <div class="field">
+        <label>Sign in as</label>
+        <select id="loginUser">
+          ${USERS.map((u) => `<option value="${u.id}">${esc(u.name)} — ${u.role}</option>`).join("")}
+        </select>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" placeholder="••••••••" value="preview" />
+      </div>
+      <button class="btn block" id="loginBtn">Sign in</button>
+      <p class="role-hint">This preview lets you pick which teammate to sign in as, so you can see how the sidebar and access change by role — production accounts don't see Sales Pipeline or Sales Team Chat, exactly like in the real app.</p>
+    </div>
+  </div>`;
+}
+
+/* ---------------- Sidebar ---------------- */
+function sidebar() {
+  const u = state.user;
+  const links = [
+    { key: "dashboard", label: "Dashboard" },
+    { key: "projects", label: "Projects" },
+  ];
+  if (isSalesOrAdmin(u)) {
+    links.push({ key: "sales", label: "Sales Pipeline" });
+    links.push({ key: "sales-chat", label: "Sales Team Chat" });
+  }
+  return `
+  <aside class="sidebar">
+    <div class="brand"><h1>Hyphemotion</h1><p>Internal workspace</p></div>
+    <nav class="nav">
+      ${links.map((l) => `<a href="#" data-nav="${l.key}" class="${state.screen === l.key ? "active" : ""}">${l.label}</a>`).join("")}
+    </nav>
+    <div class="sidebar-footer">
+      <div class="who"><div class="name">${esc(u.name)}</div><div class="role">${u.role}</div></div>
+      <button id="signOutBtn">Sign out</button>
+    </div>
+  </aside>`;
+}
+
+/* ---------------- Router ---------------- */
+function mainScreen() {
+  switch (state.screen) {
+    case "dashboard": return dashboardScreen();
+    case "projects": return projectsScreen();
+    case "project": return projectDetailScreen();
+    case "sales": return salesScreen();
+    case "sales-chat": return salesChatScreen();
+    default: return dashboardScreen();
+  }
+}
+
+/* ---------------- Dashboard ---------------- */
+function dashboardScreen() {
+  const u = state.user;
+  const recentProjects = [...projects].slice(0, 6);
+  const recentDeals = [...deals].slice(0, 6);
+  return `
+  <div class="page">
+    <div class="page-head"><div><h1>Welcome back, ${esc(u.name.split(" ")[0])}</h1><p>Here's what's happening in the studio.</p></div></div>
+    <div class="two-col">
+      <div class="panel">
+        <div class="phead"><h2>Recent projects</h2><a href="#" class="link-sm" data-nav="projects">View all</a></div>
+        ${recentProjects.map((p) => `
+          <div class="list-row" data-open-project="${p.id}" style="cursor:pointer">
+            <span>${esc(p.name)}</span>
+            <span class="badge b-${p.status}">${p.status}</span>
+          </div>`).join("") || `<p class="empty">No projects yet.</p>`}
+        <button class="btn sm" style="margin-top:10px" data-open-new-project>+ New project</button>
+      </div>
+      ${isSalesOrAdmin(u) ? `
+      <div class="panel">
+        <div class="phead"><h2>Recent deals</h2><a href="#" class="link-sm" data-nav="sales">View pipeline</a></div>
+        ${recentDeals.map((d) => `
+          <div class="list-row">
+            <span>${esc(d.title)}</span>
+            <span class="badge b-${d.stage}">${d.stage}</span>
+          </div>`).join("") || `<p class="empty">No deals yet.</p>`}
+      </div>` : ""}
+    </div>
+  </div>`;
+}
+
+/* ---------------- Projects list ---------------- */
+function projectsScreen() {
+  return `
+  <div class="page">
+    <div class="page-head">
+      <div><h1>Projects</h1><p>All animation projects in flight.</p></div>
+      <button class="btn" data-open-new-project>+ New project</button>
+    </div>
+    <div class="grid">
+      ${projects.map((p) => `
+        <div class="card" data-open-project="${p.id}" style="cursor:pointer">
+          <div class="row"><h3>${esc(p.name)}</h3><span class="badge b-${p.status}">${p.status}</span></div>
+          <p class="muted">${esc(p.client)}</p>
+          ${p.deadline ? `<p class="muted" style="margin-top:8px;font-size:11px">Due ${new Date(p.deadline).toLocaleDateString()}</p>` : ""}
+        </div>`).join("") || `<p class="empty">No projects yet.</p>`}
+    </div>
+  </div>`;
+}
+
+const newProjectModal = { open: false };
+
+function newProjectModalHtml() {
+  return `
+  <div class="modal-overlay" data-close-modal="newProject">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h2>New project</h2>
+      <p class="muted" style="margin:-10px 0 14px">Creates the project, its chat channel, and its revisions tab together.</p>
+      <div class="field"><label>Project name</label><input id="npName" placeholder="Acme — 60s brand explainer" /></div>
+      <div class="field"><label>Client name</label><input id="npClient" placeholder="Acme Inc." /></div>
+      <div class="field"><label>Project type</label><input id="npType" placeholder="2D explainer, 3D render, logo animation..." /></div>
+      <div class="field"><label>Deadline</label><input id="npDeadline" type="date" /></div>
+      <div class="field">
+        <label>Assign team members</label>
+        <div class="checklist">
+          ${USERS.map((u) => `<label><input type="checkbox" value="${u.id}" class="npMember" ${u.id === state.user.id ? "checked disabled" : ""}/> ${esc(u.name)} <span class="muted">(${u.role})</span></label>`).join("")}
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn ghost" data-close-modal="newProject">Cancel</button>
+        <button class="btn" id="createProjectBtn">Create project</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- Project detail ---------------- */
+function projectDetailScreen() {
+  const p = projects.find((x) => x.id === state.projectId);
+  if (!p) { state.screen = "projects"; return projectsScreen(); }
+  if (!isProjectMember(p, state.user)) {
+    return `<div class="page"><p class="empty">You're not a member of this project.</p></div>`;
+  }
+  return `
+  <div style="display:flex;flex-direction:column;height:100%">
+    <div class="proj-head">
+      <div><h1>${esc(p.name)}</h1><div class="sub">${esc(p.client)}</div></div>
+      <select id="projStatus">
+        ${STATUSES.map((s) => `<option value="${s}" ${s === p.status ? "selected" : ""}>${s}</option>`).join("")}
+      </select>
+    </div>
+    <div class="tabs">
+      <button class="tab-btn ${state.projectTab === "revisions" ? "active" : ""}" data-tab="revisions">Revisions</button>
+      <button class="tab-btn ${state.projectTab === "chat" ? "active" : ""}" data-tab="chat">Project Chat</button>
+    </div>
+    <div class="tab-body">
+      ${state.projectTab === "revisions" ? revisionsTab(p) : chatTab(p.messages, `proj-${p.id}`)}
+    </div>
+  </div>`;
+}
+
+/* ---------------- Revisions tab ---------------- */
+function revisionsTab(p) {
+  const versions = [...p.versions].sort((a, b) => b.number - a.number);
+  if (!state.activeVersionId && versions[0]) state.activeVersionId = versions[0].id;
+  const v = versions.find((x) => x.id === state.activeVersionId) || null;
+
+  return `
+  <div class="rev-wrap">
+    <div class="rev-list">
+      <button class="btn sm block" style="margin-bottom:10px;width:100%" id="uploadVersionBtn">+ Upload version</button>
+      ${versions.map((ver) => `
+        <button class="rev-item ${ver.id === state.activeVersionId ? "active" : ""}" data-select-version="${ver.id}">
+          <span class="vn">v${ver.number}</span>
+          <span class="badge b-${ver.status}">${VERSION_STATUSES.find((s) => s.key === ver.status).label}</span>
+        </button>`).join("") || `<p class="empty">No versions uploaded yet.</p>`}
+    </div>
+    <div class="rev-main">
+      ${!v ? `<div style="flex:1;display:flex;align-items:center;justify-content:center"><p class="empty">Upload the first cut to start collecting feedback.</p></div>` : `
+        <div class="rev-toolbar">
+          <div><b>${esc(v.title)}</b> <span class="muted">— ${v.type === "video" ? "cut.mp4" : "frame.png"}</span></div>
+          <select id="versionStatus">
+            ${VERSION_STATUSES.map((s) => `<option value="${s.key}" ${s.key === v.status ? "selected" : ""}>${s.label}</option>`).join("")}
+          </select>
+        </div>
+        <div class="rev-viewer-wrap">
+          <div class="rev-viewer">
+            ${v.type === "video" ? `
+              <div class="fake-video"><div class="play-icon">▶</div></div>
+              <div class="timeline-wrap">
+                <div class="timeline-track">
+                  ${v.comments.filter((c) => c.t != null).map((c) => `<div class="marker" style="left:${(c.t / 30) * 100}%" title="${esc(c.body)} @ ${fmtTime(c.t)}" data-seek="${c.t}"></div>`).join("")}
+                  <input type="range" id="seek" min="0" max="30" step="1" value="0" />
+                </div>
+                <div class="time-label"><span id="seekLabel">0:00</span> / 0:30</div>
+              </div>` : `<div class="fake-image">🖼️</div>`}
+          </div>
+          <div class="rev-comments">
+            <div class="comment-list">
+              ${v.comments.map((c) => `
+                <div class="comment">
+                  <div class="head">
+                    <span class="author">${esc(userById(c.author)?.name || "Someone")}</span>
+                    ${c.t != null ? `<button class="stamp" data-seek="${c.t}" style="border:none;cursor:pointer">@${fmtTime(c.t)}</button>` : ""}
+                  </div>
+                  <div class="body">${esc(c.body)}</div>
+                </div>`).join("") || `<p class="empty">No comments on this version yet.</p>`}
+            </div>
+            <div class="comment-form">
+              <textarea id="commentText" rows="2" placeholder="${v.type === "video" ? "Comment (pins current playback time)..." : "Comment..."}"></textarea>
+              <button class="btn sm block" style="margin-top:8px;width:100%" id="postCommentBtn">Post comment</button>
+            </div>
+          </div>
+        </div>`}
+    </div>
+  </div>`;
+}
+
+function fmtTime(s) { const m = Math.floor(s / 60); const sec = String(Math.floor(s % 60)).padStart(2, "0"); return `${m}:${sec}`; }
+
+/* ---------------- Chat (shared by project + sales team) ---------------- */
+function chatTab(messages, inputId) {
+  return `
+  <div class="chat">
+    <div class="chat-msgs" id="chatMsgs">
+      ${messages.length === 0 ? `<p class="empty">No messages yet — say hello.</p>` : ""}
+      ${messages.map((m) => {
+        const mine = m.sender === state.user.id;
+        const sender = userById(m.sender);
+        return `<div class="msg ${mine ? "mine" : ""}">
+          <div class="bubble">
+            ${!mine ? `<div class="sender">${esc(sender?.name || "Someone")}</div>` : ""}
+            <div>${esc(m.body)}</div>
+            <div class="time">${esc(m.time)}</div>
+          </div>
+        </div>`;
+      }).join("")}
+    </div>
+    <form class="chat-input" id="chatForm" data-input="${inputId}">
+      <input id="chatText" placeholder="Message..." autocomplete="off" />
+      <button class="btn" type="submit">Send</button>
+    </form>
+  </div>`;
+}
+
+/* ---------------- Sales pipeline ---------------- */
+function salesScreen() {
+  if (!isSalesOrAdmin(state.user)) {
+    return `<div class="page"><p class="empty">The sales pipeline is only visible to sales and admin roles.</p></div>`;
+  }
+  return `
+  <div class="page" style="display:flex;flex-direction:column;height:100%">
+    <div class="page-head">
+      <div><h1>Sales Pipeline</h1><p>Drag deals through stages as they progress.</p></div>
+      <button class="btn" id="newDealBtn">+ New deal</button>
+    </div>
+    <div class="kanban">
+      ${STAGES.map((stage) => {
+        const stageDeals = deals.filter((d) => d.stage === stage.key);
+        return `
+        <div class="kcol">
+          <div class="kcol-head"><h3>${stage.label}</h3><span class="kcol-count">${stageDeals.length}</span></div>
+          <div class="kcol-body" data-stage="${stage.key}">
+            ${stageDeals.map((d) => `
+              <div class="kcard" draggable="true" data-deal="${d.id}">
+                <div class="t">${esc(d.title)}</div>
+                <div class="c">${esc(d.client)}</div>
+                ${d.value ? `<div class="v">$${d.value.toLocaleString()}</div>` : ""}
+                ${stage.key === "won" ? `<button class="btn sm block" style="margin-top:8px;width:100%" data-convert="${d.id}">Convert to project →</button>` : ""}
+              </div>`).join("") || `<div class="kcard-drop-hint">Drop deals here</div>`}
+          </div>
+        </div>`;
+      }).join("")}
+    </div>
+  </div>`;
+}
+
+const newDealModal = { open: false };
+
+function newDealModalHtml() {
+  return `
+  <div class="modal-overlay" data-close-modal="newDeal">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h2>New deal</h2>
+      <div class="field"><label>Deal title</label><input id="ndTitle" placeholder="60s brand explainer" /></div>
+      <div class="field"><label>Client name</label><input id="ndClient" placeholder="Acme Inc." /></div>
+      <div class="field"><label>Estimated value ($)</label><input id="ndValue" type="number" placeholder="5000" /></div>
+      <div class="modal-actions">
+        <button class="btn ghost" data-close-modal="newDeal">Cancel</button>
+        <button class="btn" id="createDealBtn">Create deal</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ---------------- Sales team chat ---------------- */
+function salesChatScreen() {
+  if (!isSalesOrAdmin(state.user)) {
+    return `<div class="page"><p class="empty">The sales team chat is only visible to sales and admin roles.</p></div>`;
+  }
+  return `
+  <div style="display:flex;flex-direction:column;height:100%">
+    <div class="proj-head"><div><h1>Sales Team Chat</h1><div class="sub">Internal deal discussion, separate from client/project chat.</div></div></div>
+    <div class="tab-body">${chatTab(salesChatMessages, "sales-chat")}</div>
+  </div>`;
+}
+
+/* ---------------- Event wiring ---------------- */
+function wireUp() {
+  document.querySelectorAll("[data-nav]").forEach((el) => el.addEventListener("click", (e) => {
+    e.preventDefault();
+    state.screen = el.getAttribute("data-nav");
+    render();
+  }));
+  const signOut = document.getElementById("signOutBtn");
+  if (signOut) signOut.addEventListener("click", () => { state.user = null; state.screen = "login"; render(); });
+
+  document.querySelectorAll("[data-open-project]").forEach((el) => el.addEventListener("click", () => {
+    state.projectId = el.getAttribute("data-open-project");
+    state.projectTab = "revisions";
+    state.activeVersionId = null;
+    state.screen = "project";
+    render();
+  }));
+
+  document.querySelectorAll("[data-open-new-project]").forEach((el) => el.addEventListener("click", () => { newProjectModal.open = true; render(); }));
+  document.querySelectorAll("[data-close-modal='newProject']").forEach((el) => el.addEventListener("click", () => { newProjectModal.open = false; render(); }));
+  const createProjectBtn = document.getElementById("createProjectBtn");
+  if (createProjectBtn) createProjectBtn.addEventListener("click", () => {
+    const name = document.getElementById("npName").value.trim();
+    const client = document.getElementById("npClient").value.trim();
+    const type = document.getElementById("npType").value.trim();
+    const deadline = document.getElementById("npDeadline").value;
+    if (!name || !client) { alert("Project name and client name are required"); return; }
+    const members = [state.user.id, ...[...document.querySelectorAll(".npMember:checked")].map((c) => c.value)];
+    const id = nextId("p");
+    projects.unshift({
+      id, name, client, type, status: "brief", deadline: deadline || null,
+      members: [...new Set(members)], versions: [], messages: [],
+    });
+    newProjectModal.open = false;
+    state.projectId = id;
+    state.projectTab = "revisions";
+    state.screen = "project";
+    render();
+  });
+
+  // Project tabs / status
+  document.querySelectorAll("[data-tab]").forEach((el) => el.addEventListener("click", () => {
+    state.projectTab = el.getAttribute("data-tab");
+    render();
+  }));
+  const projStatus = document.getElementById("projStatus");
+  if (projStatus) projStatus.addEventListener("change", (e) => {
+    const p = projects.find((x) => x.id === state.projectId);
+    p.status = e.target.value;
+    render();
+  });
+
+  // Revisions
+  document.querySelectorAll("[data-select-version]").forEach((el) => el.addEventListener("click", () => {
+    state.activeVersionId = el.getAttribute("data-select-version");
+    render();
+  }));
+  const uploadBtn = document.getElementById("uploadVersionBtn");
+  if (uploadBtn) uploadBtn.addEventListener("click", () => {
+    const p = projects.find((x) => x.id === state.projectId);
+    const nextNum = (p.versions[0]?.number ?? 0) + 1;
+    const type = Math.random() > 0.3 ? "video" : "image";
+    const v = { id: nextId("v"), number: nextNum, title: `v${nextNum}`, type, status: "pending_review", comments: [] };
+    p.versions.unshift(v);
+    state.activeVersionId = v.id;
+    render();
+  });
+  const versionStatus = document.getElementById("versionStatus");
+  if (versionStatus) versionStatus.addEventListener("change", (e) => {
+    const p = projects.find((x) => x.id === state.projectId);
+    const v = p.versions.find((x) => x.id === state.activeVersionId);
+    v.status = e.target.value;
+    render();
+  });
+  const seek = document.getElementById("seek");
+  if (seek) seek.addEventListener("input", (e) => { document.getElementById("seekLabel").textContent = fmtTime(Number(e.target.value)); });
+  document.querySelectorAll("[data-seek]").forEach((el) => el.addEventListener("click", () => {
+    const t = Number(el.getAttribute("data-seek"));
+    if (seek) { seek.value = t; document.getElementById("seekLabel").textContent = fmtTime(t); }
+  }));
+  const postCommentBtn = document.getElementById("postCommentBtn");
+  if (postCommentBtn) postCommentBtn.addEventListener("click", () => {
+    const text = document.getElementById("commentText").value.trim();
+    if (!text) return;
+    const p = projects.find((x) => x.id === state.projectId);
+    const v = p.versions.find((x) => x.id === state.activeVersionId);
+    const t = v.type === "video" && seek ? Number(seek.value) : null;
+    v.comments.push({ id: nextId("c"), author: state.user.id, body: text, t });
+    render();
+  });
+
+  // Chat
+  const chatForm = document.getElementById("chatForm");
+  if (chatForm) chatForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const input = document.getElementById("chatText");
+    const text = input.value.trim();
+    if (!text) return;
+    const target = chatForm.getAttribute("data-input");
+    const msg = { id: nextId("m"), sender: state.user.id, body: text, time: "Just now" };
+    if (target === "sales-chat") salesChatMessages.push(msg);
+    else { const p = projects.find((x) => x.id === state.projectId); p.messages.push(msg); }
+    input.value = "";
+    render();
+    setTimeout(() => { const box = document.getElementById("chatMsgs"); if (box) box.scrollTop = box.scrollHeight; }, 0);
+  });
+
+  // Sales pipeline
+  const newDealBtn = document.getElementById("newDealBtn");
+  if (newDealBtn) newDealBtn.addEventListener("click", () => { newDealModal.open = true; render(); });
+  document.querySelectorAll("[data-close-modal='newDeal']").forEach((el) => el.addEventListener("click", () => { newDealModal.open = false; render(); }));
+  const createDealBtn = document.getElementById("createDealBtn");
+  if (createDealBtn) createDealBtn.addEventListener("click", () => {
+    const title = document.getElementById("ndTitle").value.trim();
+    const client = document.getElementById("ndClient").value.trim();
+    const value = Number(document.getElementById("ndValue").value || 0);
+    if (!title || !client) { alert("Title and client name are required"); return; }
+    deals.unshift({ id: nextId("d"), title, client, value, stage: "lead" });
+    newDealModal.open = false;
+    render();
+  });
+  document.querySelectorAll("[data-convert]").forEach((el) => el.addEventListener("click", () => {
+    const dealId = el.getAttribute("data-convert");
+    const d = deals.find((x) => x.id === dealId);
+    const id = nextId("p");
+    projects.unshift({
+      id, name: d.title, client: d.client, type: "", status: "brief", deadline: null,
+      members: [state.user.id], versions: [], messages: [],
+    });
+    state.projectId = id;
+    state.projectTab = "revisions";
+    state.screen = "project";
+    render();
+  }));
+
+  // Drag and drop
+  document.querySelectorAll(".kcard[draggable]").forEach((el) => {
+    el.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/plain", el.getAttribute("data-deal")); });
+  });
+  document.querySelectorAll(".kcol-body").forEach((col) => {
+    col.addEventListener("dragover", (e) => { e.preventDefault(); col.classList.add("dragover"); });
+    col.addEventListener("dragleave", () => col.classList.remove("dragover"));
+    col.addEventListener("drop", (e) => {
+      e.preventDefault();
+      col.classList.remove("dragover");
+      const id = e.dataTransfer.getData("text/plain");
+      const d = deals.find((x) => x.id === id);
+      if (d) d.stage = col.getAttribute("data-stage");
+      render();
+    });
+  });
+}
+
+/* ---------------- Boot ---------------- */
+document.getElementById("app").innerHTML = bannerHtml() + loginScreen();
+wireLogin();
+</script>
+</body>
+</html>
