@@ -34,7 +34,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
         {links
           .filter((l) => !l.roles || l.roles.includes(profile.role as "admin" | "sales"))
           .map((l) => {
-            const active = pathname === l.href || (l.href !== "/" && pathname.startsWith(l.href));
+            const active = pathname === l.href || (l.href !== "/" && pathname.startsWith(`${l.href}/`));
             return (
               <Link
                 key={l.href}
