@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import type { Profile } from "@/lib/database.types";
+import NotificationSetup from "@/components/NotificationSetup";
 
 const links = [
   { href: "/", label: "Dashboard" },
@@ -24,7 +25,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
   }
 
   return (
-    <aside className="flex h-full w-60 shrink-0 flex-col border-r border-neutral-800 bg-neutral-925 bg-neutral-900/60 p-4">
+    <aside className="flex h-full w-60 shrink-0 flex-col border-r border-neutral-800 bg-neutral-900 p-4">
       <div className="mb-6 px-2">
         <h1 className="text-base font-semibold text-white">Hyphemotion</h1>
         <p className="text-xs text-neutral-500">Internal workspace</p>
@@ -54,6 +55,7 @@ export default function Sidebar({ profile }: { profile: Profile }) {
           <p className="truncate text-sm text-white">{profile.full_name || profile.email}</p>
           <p className="text-xs capitalize text-neutral-500">{profile.role}</p>
         </div>
+        <NotificationSetup profileId={profile.id} />
         <button
           onClick={signOut}
           className="w-full rounded-lg px-3 py-2 text-left text-sm text-neutral-400 hover:bg-neutral-800 hover:text-white"

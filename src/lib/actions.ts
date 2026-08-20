@@ -123,3 +123,13 @@ export async function updateProjectStatus(projectId: string, status: ProjectStat
   revalidatePath(`/projects/${projectId}`);
   revalidatePath("/projects");
 }
+
+/** Admin only (enforced by RLS) — deletes the project and everything under it
+ * (chat, revisions, comments, membership) via cascading foreign keys. */
+export async function deleteProject(projectId: string) {
+  const supabase = await createClient();
+  const { error } = await supabase.from("projects").delete().eq("id", projectId);
+  if (error) throw new Error(error.message);
+  revalidatePath("/projects");
+  revalidatePath("/");
+}
