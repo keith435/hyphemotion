@@ -35,6 +35,18 @@ export interface SalesDeal {
   notes: string;
   created_at: string;
   updated_at: string;
+  // Populated for deals sourced by the daily lead-research automation
+  // (see supabase/migrations/0007_lead_research_fields.sql). Null for
+  // deals created by hand via "+ New deal".
+  sourced_lead_id: string | null;
+  industry: string | null;
+  role: string | null;
+  fit_score: number | null;
+  problem_identified: string | null;
+  video_opportunity: string | null;
+  outreach_angle: string | null;
+  email_subject: string | null;
+  email_body: string | null;
 }
 
 export interface Project {
